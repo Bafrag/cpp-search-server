@@ -1,6 +1,4 @@
 // -------- Начало модульных тестов поисковой системы ----------
-
-// Тест проверяет, что поисковая система исключает стоп-слова при добавлении документов
 void TestAddDocuments(){
     const int doc_id = 42;
     const string content = "cat in the city"s;
@@ -35,12 +33,19 @@ void TestMinusWordsCheck(){
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
         ASSERT(server.FindTopDocuments("dog -city"s).empty());
     }
-    //нет минус слов
+    //нет минус слов в запросе
     {
         SearchServer server;
         server.SetStopWords("in the"s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
         ASSERT_EQUAL(server.FindTopDocuments("dog city"s).size(), 1);
+    }
+    //нет минус слов в документе
+    {
+        SearchServer server;
+        server.SetStopWords("in the"s);
+        server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
+        ASSERT_EQUAL(server.FindTopDocuments("dog city -op"s).size(), 1);
     }
 }
 void TestMatchDocument(){
@@ -58,8 +63,8 @@ void TestMatchDocument(){
         vector<string> matched_words_test={"cat"s, "city"s, "w"s};
         string raw_matched_words_query="cat city p w k m"s;
         tuple<vector<string>, DocumentStatus> documents_answer=server.MatchDocument(raw_matched_words_query, doc_id1);
-        vector<string> test_vector_string   = get<0>(documents_answer);
-        bool kostil = (get<1>(documents_answer)==DocumentStatus::ACTUAL);
+        const auto& [test_vector_string, test_document_status] = documents_answer;
+        bool kostil = (test_document_status==DocumentStatus::ACTUAL);
         ASSERT_EQUAL(test_vector_string, matched_words_test);
         ASSERT(kostil);
     }
@@ -96,32 +101,9 @@ void TestRating(){
         server.AddDocument(doc_id2, content2, DocumentStatus::ACTUAL, ratings2);
         vector<Document> documents = server.FindTopDocuments("dog city"s);
         ASSERT_EQUAL(documents.size(), 3);
-        //--------------------------------------
-        int rating_test0=0;
-        if (ratings0.size()>0){
-            for (int f:ratings0){
-                rating_test0+=f;
-            }
-            rating_test0/=ratings0.size();
-        }
-        int rating_test1=0;
-        if (ratings1.size()>0){
-            for (int f:ratings1){
-                rating_test1+=f;
-            }
-            rating_test1/=ratings1.size();
-        }
-        int rating_test2=0;
-        if (ratings2.size()>0){
-            for (int f:ratings2){
-                rating_test2+=f;
-            }
-            rating_test2/=ratings2.size();
-        }
-        //--------------------------------------
-        ASSERT_EQUAL(documents[0].rating, rating_test0);
-        ASSERT_EQUAL(documents[1].rating, rating_test2);
-        ASSERT_EQUAL(documents[2].rating, rating_test1);
+        ASSERT_EQUAL(documents[0].rating, (1 + 2 + 3) / 3);
+        ASSERT_EQUAL(documents[1].rating, (6 + 8 + 2) / 3);
+        ASSERT_EQUAL(documents[2].rating, (0 / 3));
     }
 }
 void TestStatus(){
@@ -182,7 +164,6 @@ void TestRelevantnost(){
         ASSERT(documents[1].relevance-relevance1 <= 1e-6);
     }
 }
-// Функция TestSearchServer является точкой входа для запуска тестов
 void TestSearchServer() {
     TestAddDocuments();//добавление документа и проверка стоп слов
     TestExcludeStopWords();
@@ -194,7 +175,6 @@ void TestSearchServer() {
     TestRating();//Рейтинг
     // Не забудьте вызывать остальные тесты здесь
 }
-
 // --------- Окончание модульных тестов поисковой системы -----------
 
 int main() {
