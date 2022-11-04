@@ -1,4 +1,7 @@
 #pragma once
+#include <iostream>
+#include <vector>
+#include <string>
 
 enum class DocumentStatus {
     ACTUAL,
@@ -18,3 +21,9 @@ struct Document {
     double relevance = 0.0;
     int rating = 0;
 };
+
+void PrintDocument(const Document& document);
+
+void PrintMatchDocumentResult(int document_id, const std::vector<std::string>& words, DocumentStatus status);
+
+std::ostream& operator<<(std::ostream& out, const Document& document);
