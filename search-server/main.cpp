@@ -1,6 +1,3 @@
-#include <iostream>
-#include <stdexcept>
-#include <utility>
 #include "search_server.h"
 #include "paginator.h"
 #include "request_queue.h"
@@ -43,7 +40,7 @@ void MatchDocuments(const SearchServer& search_server, const std::string& query)
 int main() {
     vector<string> u = {"��"s, "��\x02��"s, "��"};
     string         o = "dgn ouy fu"s;
-    SearchServer search_server("q"s);
+    SearchServer search_server(o);
     AddDocument(search_server, 1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
     AddDocument(search_server, 2, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
     AddDocument(search_server, 3, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
