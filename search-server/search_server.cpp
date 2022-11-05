@@ -19,13 +19,13 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     document_ids_.push_back(document_id);
 }
 
-vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentStatus status) {
+vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentStatus status) const {
     return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
         return document_status == status;
     });
 }
 
-vector<Document> SearchServer::FindTopDocuments(const string& raw_query) {
+vector<Document> SearchServer::FindTopDocuments(const string& raw_query) const {
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
