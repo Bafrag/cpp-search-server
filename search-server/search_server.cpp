@@ -2,25 +2,6 @@
 
 using namespace std;
 
-template <typename StringContainer>
-set<string> MakeUniqueNonEmptyStrings(const StringContainer& strings) {
-    set<string> non_empty_strings;
-    for (const string& str : strings) {
-        if (!str.empty()) {
-            non_empty_strings.insert(str);
-        }
-    }
-    return non_empty_strings;
-}
-
-template <typename StringContainer>
-SearchServer::SearchServer(const StringContainer& stop_words)
-    : stop_words_(MakeUniqueNonEmptyStrings(stop_words)) {
-    if (!all_of(stop_words_.begin(), stop_words_.end(), IsValidWord)) {
-        throw invalid_argument("Some of stop words are invalid"s);
-    }
-}
-
 SearchServer::SearchServer(const string& stop_words_text)
     : SearchServer(SplitIntoWords(stop_words_text)) {
 }
@@ -38,34 +19,22 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     document_ids_.push_back(document_id);
 }
 
+vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentStatus status) {
+    return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
+        return document_status == status;
+    });
+}
+
+vector<Document> SearchServer::FindTopDocuments(const string& raw_query) {
+    return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
+}
+
 int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
 int SearchServer::GetDocumentId(int index) const {
     return document_ids_.at(index);
-}
-
-template <typename DocumentPredicate>
-vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate) const {
-    const auto query = ParseQuery(raw_query);
-    auto matched_documents = FindAllDocuments(query, document_predicate);
-    sort(matched_documents.begin(), matched_documents.end(),
-    [](const Document& lhs, const Document& rhs) {
-        return lhs.relevance > rhs.relevance || (abs(lhs.relevance - rhs.relevance) < 1e-6 && lhs.rating > rhs.rating);
-    });
-    if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
-        matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
-    }
-    return matched_documents;
-}
-vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentStatus status) const {
-    return FindTopDocuments(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
-        return document_status == status;
-    });
-}
-vector<Document> SearchServer::FindTopDocuments(const string& raw_query) const {
-    return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
 }
 
 tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& raw_query, int document_id) const {
@@ -156,35 +125,4 @@ SearchServer::Query SearchServer::ParseQuery(const string& text) const {
 
 double SearchServer::ComputeWordInverseDocumentFreq(const string& word) const {
     return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
-}
-
-template <typename DocumentPredicate>
-vector<Document> SearchServer::FindAllDocuments(const SearchServer::Query& query, DocumentPredicate document_predicate) const {
-    map<int, double> document_to_relevance;
-    for (const string& word : query.plus_words) {
-        if (word_to_document_freqs_.count(word) == 0) {
-            continue;
-        }
-        const double inverse_document_freq = ComputeWordInverseDocumentFreq(word);
-        for (const auto [document_id, term_freq] : word_to_document_freqs_.at(word)) {
-            const auto& document_data = documents_.at(document_id);
-            if (document_predicate(document_id, document_data.status, document_data.rating)) {
-                document_to_relevance[document_id] += term_freq * inverse_document_freq;
-            }
-        }
-    }
-    for (const string& word : query.minus_words) {
-        if (word_to_document_freqs_.count(word) == 0) {
-            continue;
-        }
-        for (const auto [document_id, _] : word_to_document_freqs_.at(word)) {
-            document_to_relevance.erase(document_id);
-        }
-    }
-    vector<Document> matched_documents;
-    for (const auto [document_id, relevance] : document_to_relevance) {
-        matched_documents.push_back(
-            {document_id, relevance, documents_.at(document_id).rating});
-    }
-    return matched_documents;
 }
