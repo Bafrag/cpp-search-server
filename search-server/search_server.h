@@ -26,7 +26,9 @@ public:
     
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const;
+    
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentStatus status) const;
+    
     std::vector<Document> FindTopDocuments(const std::string& raw_query) const;
 
     int GetDocumentCount() const;
@@ -75,7 +77,7 @@ private:
 };
 
 template <typename DocumentPredicate>
-std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const {
+std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const {
     const auto query = ParseQuery(raw_query);
     auto matched_documents = FindAllDocuments(query, document_predicate);
     sort(matched_documents.begin(), matched_documents.end(),
@@ -89,7 +91,7 @@ std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPre
 }
 
 template <typename DocumentPredicate>
-std::vector<Document> FindAllDocuments(const Query& query, DocumentPredicate document_predicate) const {
+std::vector<Document> SearchServer::FindAllDocuments(const Query& query, DocumentPredicate document_predicate) const {
     std::map<int, double> document_to_relevance;
     for (const std::string& word : query.plus_words) {
         if (word_to_document_freqs_.count(word) == 0) {
