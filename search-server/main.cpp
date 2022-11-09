@@ -13,6 +13,7 @@ void AddDocument(SearchServer& search_server, int document_id, const std::string
 }
 
 void FindTopDocuments(const SearchServer& search_server, const std::string& raw_query) {
+    LOG_DURATION_STREAM("Operation time"s, cerr);
     cout << "Results for request: "s << raw_query << endl;
     try {
         for (const Document& document : search_server.FindTopDocuments(raw_query)) {
@@ -24,8 +25,9 @@ void FindTopDocuments(const SearchServer& search_server, const std::string& raw_
 }
 
 void MatchDocuments(const SearchServer& search_server, const std::string& query) {
+    LOG_DURATION_STREAM("Operation time"s, cerr);
+    cout << "Matching for request: "s << query << endl;
     try {
-        cout << "Matching for request: "s << query << endl;
         const int document_count = search_server.GetDocumentCount();
         for (int index = 0; index < document_count; ++index) {
             const int document_id = search_server.GetDocumentId(index);
@@ -39,12 +41,37 @@ void MatchDocuments(const SearchServer& search_server, const std::string& query)
 
 int main() {
     vector<string> u = {"��"s, "��\x02��"s, "��"};
-    string o = "dgn ouy fu"s;
+    string         o = "dgn ouy fu"s;
     SearchServer search_server(o);
     AddDocument(search_server, 1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, {7, 2, 7});
     AddDocument(search_server, 2, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
     AddDocument(search_server, 3, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
-    AddDocument(search_server, 5, "sdfy okn re"s, DocumentStatus::ACTUAL, {1, 3, 2});
+    AddDocument(search_server, 4, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 5, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 6, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 7, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 8, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 9, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 10, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 11, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 12, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 13, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 14, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 15, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 16, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 17, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 18, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 19, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 20, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 21, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 22, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 23, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 24, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 25, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 26, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 27, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 28, "пушистый пёс и модный ошейник"s, DocumentStatus::ACTUAL, {1, 2});
+    AddDocument(search_server, 29, "sdfy okn re"s, DocumentStatus::ACTUAL, {1, 3, 2});
     FindTopDocuments(search_server, "пушистый"s);
     MatchDocuments(search_server, "пушистый re"s);
 }
