@@ -7,6 +7,7 @@
 #include <deque>
 #include "document.h"
 #include "string_processing.h"
+#include "log_duration.h"
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 class SearchServer {
@@ -26,15 +27,21 @@ public:
     
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const;
-    
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentStatus status) const;
-    
     std::vector<Document> FindTopDocuments(const std::string& raw_query) const;
 
     int GetDocumentCount() const;
 
-    int GetDocumentId(int index) const;
+    auto begin();
+    
+    auto end();
+    
+    const std::map<std::string, double>& GetWordFrequencies(int document_id);
+    
+    void RemoveDocument(int document_id);
 
+    const std::map<int, std::map<std::string, double>> GetDocumentsWordsWrequencies();
+    
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
 private:
     struct DocumentData {
@@ -45,7 +52,8 @@ private:
     const std::set<std::string> stop_words_;
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
     std::map<int, DocumentData> documents_;
-    std::vector<int> document_ids_;
+    std::set<int> document_ids_;
+    std::map<int, std::map<std::string, double>> documents_words_frequencies_;
 
     bool IsStopWord(const std::string& word) const;
 
