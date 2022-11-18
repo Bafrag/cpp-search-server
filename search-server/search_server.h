@@ -42,7 +42,9 @@ public:
     
     void RemoveDocument(int document_id);
 
-    const std::map<int, std::map<std::string, int>> GetDocumentsWordsFrequencies();
+    std::map<std::set<std::string>, int> GetUniqueWordsInDocument() const;
+    
+    std::map<int, std::set<std::string>> GetIdDocumentsWords() const;
     
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
 private:
@@ -55,7 +57,8 @@ private:
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
     std::map<int, DocumentData> documents_;
     std::set<int> document_ids_;
-    std::map<int, std::map<std::string, int>> documents_words_frequencies_;
+    std::map<std::set<std::string>, int> unique_words_in_document_;
+    std::map<int, std::set<std::string>> id_documents_words_;
 
     bool IsStopWord(const std::string& word) const;
 
