@@ -14,9 +14,7 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     const double inv_word_count = 1.0 / words.size();
     for (const string& word : words) {
         word_to_document_freqs_[word][document_id] += inv_word_count;
-    }
-    for (const string& word : words) {
-        documents_words_frequencies_[document_id][word] += inv_word_count;
+        documents_words_frequencies_[document_id][word] = 1;//уникальные слова для проверки дубликатности
     }
     documents_.emplace(document_id, DocumentData{ComputeAverageRating(ratings), status});
     document_ids_.insert(document_id);
@@ -36,16 +34,8 @@ int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
-auto SearchServer::begin() {
-    return documents_.begin();
-}
-    
-auto SearchServer::end() {
-    return documents_.end();
-}
-
-const map<string, double>& SearchServer::GetWordFrequencies(int document_id) {
-    return documents_words_frequencies_[document_id];
+const map<int, map<string, int>> SearchServer::GetDocumentsWordsFrequencies() {
+    return documents_words_frequencies_;
 }
 
 void SearchServer::RemoveDocument(int document_id) {
