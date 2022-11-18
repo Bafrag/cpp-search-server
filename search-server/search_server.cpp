@@ -12,10 +12,15 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     }
     const auto words = SplitIntoWordsNoStop(document);
     const double inv_word_count = 1.0 / words.size();
+    set<string> unique_words;
     for (const string& word : words) {
         word_to_document_freqs_[word][document_id] += inv_word_count;
-        documents_words_frequencies_[document_id][word] = 1;//уникальные слова для проверки дубликатности
+        if (count(unique_words.begin(), unique_words.end(), word) == 0) {
+            unique_words.insert(word);
+        }
     }
+    unique_words_in_document_[unique_words] = document_id;
+    id_documents_words_[document_id] = unique_words;
     documents_.emplace(document_id, DocumentData{ComputeAverageRating(ratings), status});
     document_ids_.insert(document_id);
 }
@@ -34,12 +39,17 @@ int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
-const map<int, map<string, int>> SearchServer::GetDocumentsWordsFrequencies() {
-    return documents_words_frequencies_;
+map<set<string>, int> SearchServer::GetUniqueWordsInDocument() const {
+    return unique_words_in_document_;
+}
+
+map<int, set<string>> SearchServer::GetIdDocumentsWords() const {
+    return id_documents_words_;
 }
 
 void SearchServer::RemoveDocument(int document_id) {
-    documents_words_frequencies_.erase(document_id);
+    unique_words_in_document_.erase(id_documents_words_[document_id]);
+    id_documents_words_.erase(document_id);
     document_ids_.erase(document_id);
     documents_.erase(document_id);
 }
