@@ -1,19 +1,19 @@
-#pragma once
-#include <utility>
-#include <stdexcept>
-#include <algorithm>
-#include <cmath>
-#include <map>
-#include <deque>
-#include "document.h"
-#include "string_processing.h"
-#include "log_duration.h"
-
+#pragma once 
+#include <utility> 
+#include <stdexcept> 
+#include <algorithm> 
+#include <cmath> 
+#include <map> 
+#include <deque> 
+#include "document.h" 
+#include "string_processing.h" 
+#include "log_duration.h" 
+ 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 class SearchServer {
-public:
-    template <typename StringContainer>
-    SearchServer(const StringContainer& stop_words)
+public: 
+    template <typename StringContainer> 
+    SearchServer(const StringContainer& stop_words) 
     : stop_words_(MakeUniqueNonEmptyStrings(stop_words)) {
         if (!all_of(stop_words_.begin(), stop_words_.end(), IsValidWord)) {
             using namespace std;
@@ -25,7 +25,7 @@ public:
 
     void AddDocument(int document_id, const std::string& document, DocumentStatus status, const std::vector<int>& ratings);
     
-    template <typename DocumentPredicate>
+    template <typename DocumentPredicate> 
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const;
     std::vector<Document> FindTopDocuments(const std::string& raw_query, DocumentStatus status) const;
     std::vector<Document> FindTopDocuments(const std::string& raw_query) const;
@@ -42,12 +42,10 @@ public:
     
     void RemoveDocument(int document_id);
 
-    std::map<std::set<std::string>, int> GetUniqueWordsInDocument() const;
-    
-    std::map<int, std::set<std::string>> GetIdDocumentsWords() const;
+    const std::map<std::string, double>& GetWordFrequencies(int document_id) const;
     
     std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
-private:
+private: 
     struct DocumentData {
         int rating;
         DocumentStatus status;
@@ -57,8 +55,7 @@ private:
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
     std::map<int, DocumentData> documents_;
     std::set<int> document_ids_;
-    std::map<std::set<std::string>, int> unique_words_in_document_;
-    std::map<int, std::set<std::string>> id_documents_words_;
+    std::map<int, std::map<std::string, double>> id_to_word_freqs_;
 
     bool IsStopWord(const std::string& word) const;
 
@@ -85,15 +82,15 @@ private:
 
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
     
-    template <typename DocumentPredicate>
+    template <typename DocumentPredicate> 
     std::vector<Document> FindAllDocuments(const Query& query, DocumentPredicate document_predicate) const;
 };
 
-template <typename DocumentPredicate>
+template <typename DocumentPredicate> 
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, DocumentPredicate document_predicate) const {
     const auto query = ParseQuery(raw_query);
     auto matched_documents = FindAllDocuments(query, document_predicate);
-    sort(matched_documents.begin(), matched_documents.end(),
+    sort(matched_documents.begin(), matched_documents.end(), 
     [](const Document& lhs, const Document& rhs) {
         return lhs.relevance > rhs.relevance || (std::abs(lhs.relevance - rhs.relevance) < 1e-6 && lhs.rating > rhs.rating);
     });
@@ -103,7 +100,7 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
     return matched_documents;
 }
 
-template <typename DocumentPredicate>
+template <typename DocumentPredicate> 
 std::vector<Document> SearchServer::FindAllDocuments(const Query& query, DocumentPredicate document_predicate) const {
     std::map<int, double> document_to_relevance;
     for (const std::string& word : query.plus_words) {
@@ -128,7 +125,7 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query, Documen
     }
     std::vector<Document> matched_documents;
     for (const auto [document_id, relevance] : document_to_relevance) {
-        matched_documents.push_back(
+        matched_documents.push_back( 
             {document_id, relevance, documents_.at(document_id).rating});
     }
     return matched_documents;
