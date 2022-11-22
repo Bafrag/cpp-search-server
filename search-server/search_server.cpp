@@ -44,12 +44,16 @@ const map<string, double>& SearchServer::GetWordFrequencies(int document_id) con
 }
 
 void SearchServer::RemoveDocument(int document_id) {
-    for (const auto& [word, freqs] : id_to_word_freqs_[document_id]) {
-        word_to_document_freqs_.erase(word);
+    const auto id_to_word_freqs = id_to_word_freqs_.find(document_id);
+    if (id_to_word_freqs != id_to_word_freqs_.end())
+    {
+        for (const auto& [word, freqs] : id_to_word_freqs->second) {
+            word_to_document_freqs_.erase(word);
+        }
+        id_to_word_freqs_.erase(id_to_word_freqs);
+        document_ids_.erase(document_id);
+        documents_.erase(document_id);
     }
-    id_to_word_freqs_.erase(document_id);
-    document_ids_.erase(document_id);
-    documents_.erase(document_id);
 }
 
 tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& raw_query, int document_id) const {
