@@ -1,13 +1,13 @@
-#pragma once 
-#include <utility> 
-#include <stdexcept> 
-#include <algorithm> 
-#include <cmath> 
-#include <map> 
-#include <deque> 
-#include "document.h" 
-#include "string_processing.h" 
-#include "log_duration.h" 
+#pragma once
+#include <utility>
+#include <stdexcept>
+#include <algorithm>
+#include <cmath>
+#include <map>
+#include <deque>
+#include "document.h"
+#include "string_processing.h"
+#include "log_duration.h"
  
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
 class SearchServer {
